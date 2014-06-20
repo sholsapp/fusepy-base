@@ -32,32 +32,47 @@ class Passthrough(Operations):
   def __init__(self, root):
     self.root = root
 
+  def _full_path(self, partial):
+    """Calculate full path for the mounted file system.
+
+      .. note::
+
+        This isn't the same as the full path for the underlying file system.
+        As such, you can't use os.path.abspath to calculate this, as that
+        won't be relative to the mount point root.
+
+    """
+    if partial.startswith("/"):
+      partial = partial[1:]
+    path = os.path.join(self.root, partial)
+    return path
+
   @logged
   def access(self, path, mode):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     if not os.access(full_path, mode):
       raise FuseOSError(errno.EACCES)
 
   @logged
   def chmod(self, path, mode):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     return os.chmod(full_path, mode)
 
   @logged
   def chown(self, path, uid, gid):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     return os.chown(full_path, uid, gid)
 
   @logged
   def getattr(self, path, fh=None):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     st = os.lstat(full_path)
     return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
            'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 
   @logged
   def readdir(self, path, fh):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
 
     dirents = ['.', '..']
     if os.path.isdir(full_path):
@@ -67,7 +82,7 @@ class Passthrough(Operations):
 
   @logged
   def readlink(self, path):
-    pathname = os.readlink(os.path.abspath(path))
+    pathname = os.readlink(self._full_path(path))
     if pathname.startswith("/"):
       # Path name is absolute, sanitize it.
       return os.path.relpath(pathname, self.root)
@@ -76,20 +91,20 @@ class Passthrough(Operations):
 
   @logged
   def mknod(self, path, mode, dev):
-    return os.mknod(os.path.abspath(path), mode, dev)
+    return os.mknod(self._full_path(path), mode, dev)
 
   @logged
   def rmdir(self, path):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     return os.rmdir(full_path)
 
   @logged
   def mkdir(self, path, mode):
-    return os.mkdir(os.path.abspath(path), mode)
+    return os.mkdir(self._full_path(path), mode)
 
   @logged
   def statfs(self, path):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     stv = os.statvfs(full_path)
     return dict((key, getattr(stv, key)) for key in ('f_bavail', 'f_bfree',
       'f_blocks', 'f_bsize', 'f_favail', 'f_ffree', 'f_files', 'f_flag',
@@ -97,7 +112,7 @@ class Passthrough(Operations):
 
   @logged
   def unlink(self, path):
-    return os.unlink(os.path.abspath(path))
+    return os.unlink(self._full_path(path))
 
   @logged
   def symlink(self, target, name):
@@ -113,16 +128,16 @@ class Passthrough(Operations):
 
   @logged
   def utimens(self, path, times=None):
-    return os.utime(os.path.abspath(path), times)
+    return os.utime(self._full_path(path), times)
 
   @logged
   def open(self, path, flags):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     return os.open(full_path, flags)
 
   @logged
   def create(self, path, mode, fi=None):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
   @logged
@@ -137,7 +152,7 @@ class Passthrough(Operations):
 
   @logged
   def truncate(self, path, length, fh=None):
-    full_path = os.path.abspath(path)
+    full_path = self._full_path(path)
     with open(full_path, 'r+') as f:
       f.truncate(length)
 
