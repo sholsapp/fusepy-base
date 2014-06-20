@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+
+import argparse
+
+from fuse import FUSE
+
+from fusepybase.base import Passthrough
+
+
+def main(mountpoint, root):
+  FUSE(Passthrough(root), mountpoint, foreground=True)
+
+if __name__ == '__main__':
+
+  parser = argparse.ArgumentParser(description='Start the FUSE plugin with a target directory and mount point.')
+  parser.add_argument('target', help='The target directory to view at the mount point.')
+  parser.add_argument('mount', help='The mount point to view the target directory.')
+  args = parser.parse_args()
+  main(args.mount, args.target)
