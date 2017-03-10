@@ -1,12 +1,16 @@
 fusepy-base
 ===========
 
-A base fuse plugin written in Python adapted from
-http://www.stavros.io/posts/python-fuse-filesystem/.
+A [fusepy](https://pypi.python.org/pypi/fusepy) filesystem lifted from
+[here](http://www.stavros.io/posts/python-fuse-filesystem/) and enhanced with
+documention from
+[here](https://www.cs.hmc.edu/~geoff/classes/hmc.cs135.201001/homework/fuse/fuse_doc.html).
 
-installation
+The filesystem adds logging to every FUSE filesystem operation to help educate
+you on the workings of a FUSE filesystem. Use this as a `CTRL+C`/`CTRL+V` starting
+point for your actual filesystem.
+
+dependencies
 ============
 
-On some systems, you may need to change the permissions of fusermount by
-running `chmod 4755 /usr/bin/fusermount`. Refer to the fuse4x FAQ at
-https://github.com/fuse4x/fuse/blob/master/FAQ#L244 for more information.
+Your system needs to have FUSE installed on it.
