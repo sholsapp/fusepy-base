@@ -308,6 +308,14 @@ class Passthrough(Operations):
 
     @logged
     def flush(self, path, fh):
+        """Flush buffered information.
+
+        Called on each close so that the filesystem has a chance to report
+        delayed errors. Important: there may be more than one flush call for
+        each open. Note: There is no guarantee that flush will ever be called
+        at all!
+
+        """
         return os.fsync(fh)
 
     @logged
