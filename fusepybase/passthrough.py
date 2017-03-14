@@ -46,7 +46,7 @@ class Passthrough(Operations):
     def __init__(self, root):
         self.root = root
         
-    def destroy(self):
+    def destroy(self, path):
         """Clean up any resources used by the filesystem.
         
         Called when the filesystem exits.
