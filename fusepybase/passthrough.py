@@ -45,6 +45,14 @@ class Passthrough(Operations):
     """
     def __init__(self, root):
         self.root = root
+        
+    def destroy(self):
+        """Clean up any resources used by the filesystem.
+        
+        Called when the filesystem exits.
+        
+        """
+        pass
 
     def _full_path(self, partial):
         """Calculate full path for the mounted file system.
